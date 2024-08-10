@@ -22,7 +22,7 @@
   }
 
   // プレイヤーに変更がある場合は反映
-  socket.on("update_players", list=>{
+  socket.on("update_player_list", list=>{
     playerList = list;
   });
 </script>

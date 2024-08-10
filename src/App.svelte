@@ -17,14 +17,12 @@
   socket.on("started", ()=>{
     isGameStarted = true;
   })
-
-  let test = location.href;
 </script>
 
 
 <main>
   <GameConfig socket={socket} hidden={isGameStarted}/>
-  <Sugoroku socket={socket}/>
+  <Sugoroku socket={socket} started={isGameStarted}/>
 </main>
 
 

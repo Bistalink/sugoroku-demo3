@@ -1,14 +1,20 @@
 <script lang="ts">
   import type { Socket } from "socket.io-client";
-  import type { GameState, PlayerState } from "./util";
+  import type { GameState, PlayerState, Player} from "./util";
   
 
   export let socket: Socket
+  export let started: boolean = false;
 
+  let gameover: boolean;
   let gameState: GameState;
   let playerState: PlayerState;
 
-  socket.on("update", (data: GameState)=>{
+  let diceRequested: boolean = false;
+
+  let winner: string = "";
+
+  socket.on("update_state", (data: GameState)=>{
     gameState = data;
     console.log(data);
   })
@@ -18,29 +24,43 @@
     console.log(data);
   })
 
+  socket.on("gameover", (playername: string)=>{
+    gameover = true;
+    winner = playername;
+  })
+
+  socket.on("request:dice", ()=>{
+    console.log("Dice requested by server");
+    diceRequested = true;
+  })
+
   function dice(){
     socket.emit("dice");
+    diceRequested = false;
   }
 </script>
 
 
-{#if gameState != undefined && playerState != undefined}
+{#if started}
 <div>
-  <h3>現在のプレイヤー：{gameState.currentPlayer} ({gameState.players[gameState.currentPlayer].name})</h3>
-  <button id="diceButton" disabled={!playerState.playable} on:click={dice}>サイコロ</button>
-  {#each gameState.players as player}
-    <div class="player" style="left: {player.position * 2}rem; background-color: {player.position % 3 == 1 ? "rgba(255, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)"}">{player.name}<br>{player.position}</div>
-  {/each}
+  <!-- サイコロ回すやつ -->
+  <div style="display: {diceRequested ? "" : "none"};">
+    <button on:click={dice}>サイコロを回す</button>
+  </div>
+
+  {#if gameState != undefined}
+  <div>
+    {#each gameState.players as p}
+      <h3>プレイヤー名：{p.name} ポジション：{p.position}</h3>
+    {/each}
+    <!-- ゲームクリア画面 -->
+    <div style="display: {gameover ? "" : "none"};">
+      <h1>{winner} がゴールしました！</h1>
+    </div>
+  </div>
+  {/if}
 </div>
 {/if}
 
 <style>
-  div.player{
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 2rem;
-    height: 2rem;
-    transition: all 0.2s;
-  }
 </style>

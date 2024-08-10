@@ -1,17 +1,17 @@
-type Player = {
+export type Player = {
   name: string,
   position: number,
   sid: string
 }
 
 export type GameState = {
-  "players": Player[],
-  "turn": number
-  "currentPlayer": number,
-  "gameover": boolean,
+  players: Player[],
+  currentPlayer: number,
+  goal: number,
+  turn: number
 }
 
 export type PlayerState = {
-  "name": string,
-  "playable": boolean,
+  name: string,
+  playable: boolean,
 }
