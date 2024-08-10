@@ -20,7 +20,7 @@ class Game:
     "players": [],
     "turn": 0,
     "current_player": 0,
-    "goal": 10
+    "goal": 30  # TODO: 仮
   }
 
   # 与えられたプレイヤーのリストでゲームを初期化
@@ -34,6 +34,7 @@ class Game:
 
   def move(self, diff, player_idx):
     self.game_state["players"][player_idx]["position"] += diff
+    self.animate(player_idx)
     self.update_state()
 
   def add_turn(self, diff):
@@ -41,8 +42,16 @@ class Game:
     self.game_state["current_player"] = self.game_state["turn"] % len(self.game_state["players"])
     self.update_state()
 
+  def animate(self, player_idx):
+    emit("animate", self.game_state["players"][player_idx]["sid"], broadcast=True)
+
   def update_state(self):
     emit("update_state", self.game_state, broadcast=True)
+    self.update_player_state()
+  
+  def update_player_state(self):
+    for player in self.game_state["players"]:
+      emit("update_player_state", player, room=player["sid"])
 
   def request_dice(self, playeridx):
     emit("request:dice", room=game.get_sid_by_playeridx(playeridx))
@@ -82,7 +91,7 @@ def on_roll_dice():
     return
   # 次の人に回す
   game.add_turn(1)
-  # 次の人にサイコロを振らせる
+  # 新しい人にサイコロを振らせる
   game.request_dice(game.game_state["current_player"])
 
 
@@ -101,6 +110,7 @@ def on_start():
   game = Game(player_list)
   emit("request:dice", room=game.game_state["players"][idx]["sid"])
   emit("started", broadcast=True)
+  game.update_state()
   print("Game start requested and START!")
   print(f"Dice requested to player {idx}!")
 

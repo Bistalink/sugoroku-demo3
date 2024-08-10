@@ -10,8 +10,3 @@ export type GameState = {
   goal: number,
   turn: number
 }
-
-export type PlayerState = {
-  name: string,
-  playable: boolean,
-}
