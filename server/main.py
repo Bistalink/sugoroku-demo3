@@ -6,7 +6,7 @@ import os
 import sys
 
 # 環境設定
-GOAL = 30
+GOAL = 10
 WEIGHT_FACTOR = 1
 
 
