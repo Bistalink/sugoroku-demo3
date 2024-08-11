@@ -31,7 +31,7 @@
 <div style="display: {hidden ? "none": ""}" id="main">
   <!-- 新規登録フォーム 兼　タイトル-->
   <div id="registerPage" style="display: {showWaitingPage ? "none" : ""};"> 
-    <h2>英語すごろく</h2>
+    <h2>スゴタン</h2>
     <div id="register-form">
       <input type="text" name="playername" id="playername" placeholder="プレイヤー名を入力...">
       <button id="joinButton" on:click={join}>Join</button>
