@@ -5,6 +5,8 @@
   import GameConfig from "./GameConfig.svelte";
   import Sugoroku from "./Sugoroku.svelte";
 
+  import bb_footer from "./assets/bb_footer.png"
+
   let isGameStarted = false;  // ゲームが始まっているかどうか
   const socket = connect(location.href);
 

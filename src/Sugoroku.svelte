@@ -5,7 +5,7 @@
 
   import bike from "./assets/bike.png"
   import girl from "./assets/girl.png"
-  import bb from "./assets/bb.png"
+  import bb_footer from "./assets/bb_footer.png"
   
 
   export let socket: Socket
@@ -201,6 +201,7 @@
 
     <!-- 装飾 -->
     <div class="decoration">
+      <footer style="background-image: url({bb_footer})"></footer>
       <img class="girl" src="{girl}" alt="">
     </div>
   </div>
@@ -344,5 +345,15 @@
     img.girl {
       width: 220px;
     }
+  }
+
+  footer {
+    position: absolute;
+    pointer-events: none;
+    z-index: -2;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 73px;
   }
 </style>
