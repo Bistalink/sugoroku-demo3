@@ -266,6 +266,7 @@ def on_roll_dice():
 
 @socketio.on("join")
 def on_join(playername):
+
   global player_list
   player_list.append({"name": playername, "sid": request.sid})
   emit("update_player_list", player_list, broadcast=True)
@@ -297,7 +298,7 @@ def on_answer(answer):
   q_idx = answer["question_idx"]
   p_idx = game.get_playeridx_by_sid(request.sid)
   print(f"User Answered question {q_idx}: {user_input}")
-  game.write_log("プレイヤー " + game.game_state["players"][p_idx]["name"] + " が問題に答えました！ 回答：{user_input}")
+  game.write_log("プレイヤー " + game.game_state["players"][p_idx]["name"] + " が問題に答えました！ 回答：" + user_input")
   judge = game.judgement(q_idx, user_input)
   game.write_log("正解です！" if judge else "不正解です... 正解は " + str(game.question[q_idx][0][0]) + "でした")
   game.write_log("解説：...（今後追加予定）...")
