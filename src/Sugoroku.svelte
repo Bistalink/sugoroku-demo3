@@ -299,7 +299,6 @@
       display: flex;
       position: absolute;
       flex-direction: column;
-      overflow: scroll;
       width: 30rem;
       height: 30rem;
       margin: 1rem;
