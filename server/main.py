@@ -22,6 +22,8 @@ class Player(TypedDict):
 
 
 class Game:
+  num_members = 0
+
   game_state = {
     "players": [],
     "turn": 0,
@@ -48,6 +50,8 @@ class Game:
         "level": 0,
         "skip": False
       })
+    self.num_members = len(player_list)
+
     # イベントマスを作成
     size = self.game_state["goal"]
     count_5 = int(size * 0.05)
@@ -103,7 +107,7 @@ class Game:
 
   def add_turn(self, diff):
     self.game_state["turn"] += diff
-    self.game_state["current_player"] = self.game_state["turn"] % len(self.game_state["players"])
+    self.game_state["current_player"] = self.game_state["turn"] % self.num_members
     self.update_state()
 
 
@@ -119,6 +123,17 @@ class Game:
   def update_player_state(self):
     for player in self.game_state["players"]:
       emit("update_player_state", player, room=player["sid"])
+
+
+  def update_spectator_state(self):
+    spectator = {
+        "name": "spectator",
+        "position": 0,
+        "sid": "spectator",
+        "level": 0,
+        "skip": "false"
+    }
+    emit("update_player_state", spectator, broadcast=True)
 
 
   def request_dice(self, playeridx):
@@ -159,9 +174,10 @@ class Game:
     question = question_list[question_idx]
     payload = {
       "content": [mask_string(question[0][0]), question[1][0]],
-      "question_idx": question_idx
+      "question_idx": question_idx,
+      "sid": self.get_sid_by_playeridx(player_idx)
     }
-    emit("request:answer", payload)
+    emit("request:answer", payload, broadcast=True)
   
   # 指定したプレイヤーの現在マスに応じてイベントを発生させる
   def run_event(self, player_idx: int, correct: bool):
@@ -240,6 +256,12 @@ def on_roll_dice():
 
 @socketio.on("join")
 def on_join(playername):
+  # すでにゲームが始まっている場合は観戦モードになる
+  if game is not None:
+    emit("started", room=request.sid)
+    game.update_state()
+    return
+
   global player_list
   player_list.append({"name": playername, "sid": request.sid})
   emit("update_player_list", player_list, broadcast=True)
@@ -267,6 +289,7 @@ def on_answer(answer):
   game.write_log(f"プレイヤー {game.game_state["players"][p_idx]["name"]} が問題に答えました！ 回答：{user_input}")
   judge = game.judgement(q_idx, user_input)
   game.write_log("正解です！" if judge else f"不正解です... 正解は {game.question[q_idx][0][0]}でした")
+  game.write_log("解説：...（今後追加予定）...")
 
   game.run_event(p_idx, judge)
   pass

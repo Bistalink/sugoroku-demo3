@@ -17,5 +17,6 @@ export type GameState = {
 
 export type RequestedQuestion = {
   content: [string, string],
-  question_idx: number
+  question_idx: number,
+  sid: string
 }

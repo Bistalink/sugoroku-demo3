@@ -20,7 +20,9 @@
   let questionContent = "";
   let questionLabel = "";
   let questionIdx = 0;
+
   let showAnswerScreen = false;
+  let canAnswer = false;
 
   let event_description = [
     "正解：+1マス",
@@ -53,6 +55,7 @@
   // ゲーム状態が更新されたとき
   socket.on("update_state", (data: GameState)=>{
     gameState = data;
+    showAnswerScreen = false;
 
     log = gameState.log;
     if (log.length > 3){
@@ -89,7 +92,8 @@
   socket.on("request:answer", (question: RequestedQuestion)=>{
     setTimeout(() => {
       showAnswerScreen = true;  
-    }, 1000);
+      canAnswer = question.sid == playerState.sid;
+    }, 1300);
     
     (document.getElementById("answerInput") as HTMLInputElement).focus();
 
@@ -169,12 +173,14 @@
 
     <!-- 問題回答画面 -->
     <div class="answer-screen" style="{showAnswerScreen ? "opacity: 1;" : "display: none; opacity: 0;"}">
-      <div>
+      <div class="wrapper">
         <h2>{questionContent}</h2>
         <h3>{questionLabel}</h3>
-        <h4>{event_description[gameState.event_list[playerState.position]]}</h4>
-        <input id="answerInput" type="text">
-        <button on:click={answer}>回答</button>
+        <div style="display: {canAnswer ? "" : "none"};">
+          <h4>{event_description[gameState.event_list[playerState.position]]}</h4>
+          <input id="answerInput" type="text">
+          <button on:click={answer}>回答</button>
+        </div>
       </div>
     </div>
 
@@ -246,7 +252,7 @@
     height: 100vh;
     overflow: hidd;
 
-    div {
+    div.wrapper {
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -278,7 +284,7 @@
       position: absolute;
       flex-direction: column;
       overflow: scroll;
-      width: 10rem;
+      width: 30rem;
       height: 30rem;
       margin: 1rem;
       gap: 2px;
