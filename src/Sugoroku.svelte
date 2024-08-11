@@ -39,8 +39,8 @@
   let event_colors = [
     "white",
     "#B4FEBC",
-    "#CF5A3D",
-    "#BB2E1F",
+    "#FFE500",
+    "#B455A0",
     "#A70101",
     "linear-gradient(to right,#de4141,#e8ac51,#f2e55c,#39a869,#4784bf,#5d5099,#a55b9a)"
   ]
