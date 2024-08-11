@@ -2,7 +2,10 @@
   import type { Socket } from "socket.io-client";
   import type { GameState, Player, RequestedQuestion} from "./util";
   import "animate.css"
+
   import bike from "./assets/bike.png"
+  import girl from "./assets/girl.png"
+  import bb from "./assets/bb.png"
   
 
   export let socket: Socket
@@ -122,6 +125,10 @@
     showAnswerScreen = false;
     answerBox.value = "";
   }
+
+  function restart(){
+    socket.emit("restart");
+  }
 </script>
 
 
@@ -186,7 +193,15 @@
 
     <!-- ゲームクリア画面 -->
     <div class="gameover" style="display: {gameover ? "" : "none"};">
-      <h1>{winner} がゴールしました！</h1>
+      <div>
+        <h1>{winner} がゴールしました！</h1>
+        <button on:click={restart}>リスタート</button>
+      </div>
+    </div>
+
+    <!-- 装飾 -->
+    <div class="decoration">
+      <img class="girl" src="{girl}" alt="">
     </div>
   </div>
   {/if}
@@ -294,6 +309,40 @@
       background-color: rgba(255, 255, 255, 0.1);
       padding: 1px;
       }
+    }
+  }
+
+  .gameover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    div {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 2rem;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  .decoration {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    pointer-events: none;
+
+    img.girl {
+      width: 220px;
     }
   }
 </style>

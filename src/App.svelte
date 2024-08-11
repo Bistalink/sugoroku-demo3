@@ -17,10 +17,19 @@
   socket.on("started", ()=>{
     isGameStarted = true;
   })
+
+  socket.on("dev:restart", ()=>{
+    socket.emit("restart_confirmed")
+
+    setTimeout(() => {
+      location.reload();
+    }, 100);
+  })
 </script>
 
 
 <main>
+  <button on:click={()=>{socket.emit("restart")}} style="position: absolute; top: 0; left: 0;">（開発用）緊急リセットボタン</button>
   <GameConfig socket={socket} hidden={isGameStarted}/>
   <Sugoroku socket={socket} started={isGameStarted}/>
 </main>
