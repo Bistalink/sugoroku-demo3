@@ -167,19 +167,23 @@
     <!-- レール -->
     <!-- TODO:ループで回して全員分表示させる -->
     {#each gameState.players as player}
-    <div class="lane">
-      <img class="{animationRequired && animationRequired == player["sid"] ? "animate__animated animate__wobble" : ""}" src="{bike}" alt="">
-      <div class="rail-wrapper">
-        <div class="rail" style="left: {-player.position * 5 + 5}rem;">
-          {#each gameState.event_list as event, index}
-          <div class="cell"> <!-- TODO: 最初のマスは確定で白いろにする -->
-            <div style="background: {event_colors[event]};"></div>
-            <p>{index}</p>
+    <div style="display: flex; flex-direction: row;">
+      <h2>{player.name}</h2>
+      <div class="lane">
+        <img class="{animationRequired && animationRequired == player["sid"] ? "animate__animated animate__wobble" : ""}" src="{bike}" alt="">
+        <div class="rail-wrapper">
+          <div class="rail" style="left: {-player.position * 5 + 5}rem;">
+            {#each gameState.event_list as event, index}
+            <div class="cell"> <!-- TODO: 最初のマスは確定で白いろにする -->
+              <div style="background: {event_colors[event]};"></div>
+              <p>{index}</p>
+            </div>
+            <!-- <p style="width: 1rem; padding: 0; margin: 0">{one_grid}</p> -->
+            {/each}
           </div>
-          <!-- <p style="width: 1rem; padding: 0; margin: 0">{one_grid}</p> -->
-          {/each}
-        </div>
-      </div>  
+        </div>  
+      </div>
+  
     </div>
     {/each}
 
