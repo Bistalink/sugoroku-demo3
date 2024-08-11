@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Socket } from "socket.io-client";
-  import type { GameState, Player} from "./util";
+  import type { GameState, Player, RequestedQuestion} from "./util";
   import "animate.css"
+  import bike from "./assets/bike.png"
   
 
   export let socket: Socket
@@ -14,9 +15,33 @@
   let diceRequested: boolean = false; // サイコロを振るリクエスト中
 
   let position: number;
-  let animationRequired = "";
+  let animationRequired = ""
+
+  let questionContent = "";
+  let questionLabel = "";
+  let questionIdx = 0;
+  let showAnswerScreen = false;
+
+  let event_description = [
+    "正解：+1マス",
+    "正解：+2マス",
+    "不正解：-1マス",
+    "不正解：-2マス",
+    "不正解：1回休み",
+    "正解：もう1回サイコロを振る"
+  ]
+
+  let event_colors = [
+    "white",
+    "#B4FEBC",
+    "#CF5A3D",
+    "#BB2E1F",
+    "#A70101",
+    "linear-gradient(to right,#de4141,#e8ac51,#f2e55c,#39a869,#4784bf,#5d5099,#a55b9a)"
+  ]
 
   let railOffset = 0;
+  let log: string[] = [];
 
   let winner: string = "";            // 勝者
 
@@ -28,7 +53,11 @@
   // ゲーム状態が更新されたとき
   socket.on("update_state", (data: GameState)=>{
     gameState = data;
-    console.log(data);
+
+    log = gameState.log;
+    if (log.length > 3){
+      log = log.slice(-3)
+    }
   })
 
   // プレイヤーの状態が更新されたとき
@@ -57,17 +86,37 @@
     }, 700);
   })
 
+  socket.on("request:answer", (question: RequestedQuestion)=>{
+    setTimeout(() => {
+      showAnswerScreen = true;  
+    }, 1000);
+    
+    (document.getElementById("answerInput") as HTMLInputElement).focus();
+
+    questionContent = question.content[0];
+    questionLabel = question.content[1];
+    questionIdx = question.question_idx;
+
+    console.log("Question: ", question.content, "Index: ", question.question_idx);
+  })
+
   function dice(){
     socket.emit("dice");
     diceRequested = false;
   }
 
-  function nextRail(){
-    railOffset++;
-  }
+  function answer(){
+    const answerBox = document.getElementById("answerInput") as HTMLInputElement;
+    const answer = answerBox.value;
+    const payload = {
+      answer: answer,
+      question_idx: questionIdx
+    }
 
-  function prevRail(){
-    railOffset--;
+    socket.emit("answer", payload);
+
+    showAnswerScreen = false;
+    answerBox.value = "";
   }
 </script>
 
@@ -90,25 +139,44 @@
     <div id="position">現在：{playerState.position} マス目</div>
     <div id="remaining">残り：{gameState.goal - playerState.position}マス</div>
 
+    <!-- ログ画面 -->
+    <div class="log-screen">
+      <div>
+      {#each log as logLine}
+        <p>{logLine}</p>
+      {/each}
+      </div>
+    </div>
+
     <!-- レール -->
     <!-- TODO:ループで回して全員分表示させる -->
     {#each gameState.players as player}
     <div class="lane">
-      <img class="{animationRequired && animationRequired == player["sid"] ? "animate__animated animate__wobble" : ""}" src="" alt="">
+      <img class="{animationRequired && animationRequired == player["sid"] ? "animate__animated animate__wobble" : ""}" src="{bike}" alt="">
       <div class="rail-wrapper">
         <div class="rail" style="left: {-player.position * 5 + 5}rem;">
-          {#each board_events as one_grid, index}
-          <div class="cell">
-            <div></div>
+          {#each gameState.event_list as event, index}
+          <div class="cell"> <!-- TODO: 最初のマスは確定で白いろにする -->
+            <div style="background: {event_colors[event]};"></div>
             <p>{index}</p>
           </div>
-          <!-- TODO: 開発用 -->
           <!-- <p style="width: 1rem; padding: 0; margin: 0">{one_grid}</p> -->
           {/each}
         </div>
       </div>  
     </div>
     {/each}
+
+    <!-- 問題回答画面 -->
+    <div class="answer-screen" style="{showAnswerScreen ? "opacity: 1;" : "display: none; opacity: 0;"}">
+      <div>
+        <h2>{questionContent}</h2>
+        <h3>{questionLabel}</h3>
+        <h4>{event_description[gameState.event_list[playerState.position]]}</h4>
+        <input id="answerInput" type="text">
+        <button on:click={answer}>回答</button>
+      </div>
+    </div>
 
     <!-- ゲームクリア画面 -->
     <div class="gameover" style="display: {gameover ? "" : "none"};">
@@ -131,7 +199,7 @@
       width: 4rem;
       height: 4rem;
       left: 5rem;
-      background-color: red;
+      //background-color: red;
     }
   }
 
@@ -162,6 +230,63 @@
         height: 100%;
         margin: 0;
         padding: 0;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .answer-screen {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidd;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      min-width: 50rem;
+      min-height: 30rem;
+      border-radius: 8px;
+      gap: 0.5rem;
+    }
+  }
+
+  .log-screen {
+    display: flex;
+    position: absolute;
+    justify-content: flex-end;
+    align-items: flex-start;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    div {
+      display: flex;
+      position: absolute;
+      flex-direction: column;
+      overflow: scroll;
+      width: 10rem;
+      height: 30rem;
+      margin: 1rem;
+      gap: 2px;
+      
+      p {
+      margin: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1px;
       }
     }
   }

@@ -29,11 +29,13 @@
 
 
 <div style="display: {hidden ? "none": ""}" id="main">
-  <!-- 新規登録フォーム -->
+  <!-- 新規登録フォーム 兼　タイトル-->
   <div id="registerPage" style="display: {showWaitingPage ? "none" : ""};"> 
-    <h2>プレイヤー名を入力してください</h2>
-    <input type="text" name="playername" id="playername">
-    <button id="joinButton" on:click={join}>Join</button>
+    <h2>英語すごろく</h2>
+    <div id="register-form">
+      <input type="text" name="playername" id="playername" placeholder="プレイヤー名を入力...">
+      <button id="joinButton" on:click={join}>Join</button>
+    </div>
   </div>
 
   <!-- 待機画面 & 追加の設定 -->
@@ -44,15 +46,15 @@
       <p>{player.name}</p>
       {/each}
     </div>
-    <div id="additionalSettings">
+    <!-- <div id="additionalSettings">
       <h2>追加設定</h2>
-    </div>
+    </div> -->
     <button id="startButton" on:click={start}>START</button>
   </div>
 </div>
 
 
-<style>
+<style lang="scss">
   #main{
     display: flex;
     align-items: center;
@@ -62,5 +64,23 @@
     border-radius: 1rem;
     min-width: 30rem;
     min-height: 20rem;
+  }
+
+  #playername {
+    width: 100%;
+    height: 100%;
+  }
+
+  #register-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    input[type=text] {
+      height: 2rem;
+      width: 20rem;
+    }
   }
 </style>
