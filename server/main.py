@@ -2,7 +2,6 @@ from typing import TypedDict
 from random import randrange, choices, shuffle, randint
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO, emit
-from utils import mask_string
 import os
 import sys
 
@@ -307,6 +306,18 @@ def on_answer(answer):
   print("After answer")
   print(game)
   print(player_list)
+
+def mask_string(word: str):
+    if len(word) <= 1:
+        return word  # 文字数が1以下ならそのまま返す
+
+    # 残す文字のインデックスをランダムに選択
+    reveal_index = randint(0, len(word) - 1)
+
+    # "●" に置き換える処理
+    masked_word = ''.join([char if i == reveal_index else '●' for i, char in enumerate(word)])
+
+    return masked_word
 
 port = int(os.environ.get("PORT", 5555))
 socketio.run(app, host="0.0.0.0", port=port, debug=True, allow_unsafe_werkzeug=True)
