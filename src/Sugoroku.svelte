@@ -107,6 +107,11 @@
     console.log("Question: ", question.content, "Index: ", question.question_idx);
   })
 
+  socket.on("error", (text)=>{
+    alert(text);
+    location.reload();
+  })
+
   function dice(){
     socket.emit("dice");
     diceRequested = false;
